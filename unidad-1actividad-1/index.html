@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<div class="calculadora">
+    <input type="text" id="pantalla" value="0" readonly>
+
+    <table>
+        <tr>
+            <td><button class="num" data-valor="7">7</button></td>
+            <td><button class="num" data-valor="8">8</button></td>
+            <td><button class="num" data-valor="9">9</button></td>
+            <td><button class="op" data-valor="+">+</button></td>
+        </tr>
+        <tr>
+            <td><button class="num" data-valor="4">4</button></td>
+            <td><button class="num" data-valor="5">5</button></td>
+            <td><button class="num" data-valor="6">6</button></td>
+            <td><button class="op" data-valor="-">-</button></td>
+        </tr>
+        <tr>
+            <td><button class="num" data-valor="3">3</button></td>
+            <td><button class="num" data-valor="2">2</button></td>
+            <td><button class="num" data-valor="1">1</button></td>
+            <td><button class="op" data-valor="*">×</button></td>
+        </tr>
+        <tr>
+            <td><button class="num" data-valor="0">0</button></td>
+            <td><button class="num" data-valor=".">.</button></td>
+            <td><button class="igual">=</button></td>
+            <td><button class="op" data-valor="/">/</button></td>
+        </tr>
+    </table>
+
+    <button class="borrar">Borrar</button>
+</div>
+
+<script src="script"></script>
+</body>
+</html>

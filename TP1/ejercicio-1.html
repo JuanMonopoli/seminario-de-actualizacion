@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 1</title>
+</head>
+
+<body>
+
+<script>
+
+let nombre = prompt("Ingrese su nombre:");
+let apellido = prompt("Ingrese su apellido:");
+
+nombre = nombre.toLowerCase();
+
+nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+
+apellido = apellido.toUpperCase();
+
+alert(`¡Buenos días ${apellido}, ${nombre}!`);
+
+</script>
+
+</body>
+
+</html>

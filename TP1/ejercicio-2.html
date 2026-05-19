@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 2</title>
+</head>
+
+<body>
+
+<script>
+
+let fecha;
+let intentos = 0;
+let valida = false;
+
+while(!valida)
+{
+    fecha = prompt("Ingrese su fecha de nacimiento (YYYY-MM-DD)");
+
+    let fechaObj = new Date(fecha);
+
+    if(fechaObj != "Invalid Date" && !isNaN(fechaObj))
+    {
+        valida = true;
+
+        alert("Fecha válida: " + fecha);
+    }
+    else
+    {
+        intentos++;
+
+        alert("Fecha inválida. Reintento número: " + intentos);
+    }
+}
+
+</script>
+
+</body>
+
+</html>

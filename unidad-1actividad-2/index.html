@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora WebComponent</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+class Calculadora extends HTMLElement
+{
+    constructor()
+    {
+        super();
+
+        this.expresion = "";
+
+        this.contenedor = document.createElement('div');
+        this.contenedor.className = 'calculadora';
+
+        this.pantalla = document.createElement('input');
+        this.pantalla.type = 'text';
+        this.pantalla.value = '0';
+        this.pantalla.readOnly = true;
+        this.pantalla.className = 'pantalla';
+
+        this.tabla = document.createElement('table');
+
+        this.botones = [
+            ['7', '8', '9', '+'],
+            ['4', '5', '6', '-'],
+            ['1', '2', '3', '*'],
+            ['0', '.', '=', '/']
+        ];
+
+        for(let i = 0; i < this.botones.length; i++)
+        {
+            let fila = document.createElement('tr');
+
+            for(let j = 0; j < this.botones[i].length; j++)
+            {
+                let celda = document.createElement('td');
+
+                let boton = document.createElement('button');
+
+                boton.innerText = this.botones[i][j];
+
+                if(boton.innerText == '=')
+                {
+                    boton.className = 'igual';
+                }
+                else if(['+', '-', '*', '/'].includes(boton.innerText))
+                {
+                    boton.className = 'op';
+                }
+                else
+                {
+                    boton.className = 'num';
+                }
+
+                boton.onclick = () => this.presionarBoton(boton.innerText);
+
+                celda.appendChild(boton);
+
+                fila.appendChild(celda);
+            }
+
+            this.tabla.appendChild(fila);
+        }
+
+        this.borrarBtn = document.createElement('button');
+
+        this.borrarBtn.innerText = 'Borrar';
+
+        this.borrarBtn.className = 'borrar';
+
+        this.borrarBtn.onclick = () => this.borrar();
+
+        this.contenedor.appendChild(this.pantalla);
+
+        this.contenedor.appendChild(this.tabla);
+
+        this.contenedor.appendChild(this.borrarBtn);
+
+        this.appendChild(this.contenedor);
+    }
+
+    presionarBoton(valor)
+    {
+        if(valor == '=')
+        {
+            try
+            {
+                this.expresion = eval(this.expresion).toString();
+
+                this.pantalla.value = this.expresion;
+            }
+            catch
+            {
+                this.pantalla.value = 'Error';
+
+                this.expresion = '';
+            }
+        }
+        else
+        {
+            if(this.pantalla.value == '0')
+            {
+                this.expresion = valor;
+            }
+            else
+            {
+                this.expresion += valor;
+            }
+
+            this.pantalla.value = this.expresion;
+        }
+    }
+
+    borrar()
+    {
+        this.expresion = '';
+
+        this.pantalla.value = '0';
+    }
+
+    connectedCallback()
+    {
+        console.log('Calculadora agregada al DOM');
+    }
+
+    disconnectedCallback()
+    {
+        console.log('Calculadora eliminada del DOM');
+    }
+}
+
+customElements.define('x-calculadora', Calculadora);
+
+function main()
+{
+    let calculadora = new Calculadora();
+
+    document.body.appendChild(calculadora);
+}
+
+window.onload = main;
+
+</script>
+
+</html>

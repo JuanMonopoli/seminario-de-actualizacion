@@ -2,24 +2,73 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Ejercicio 1</title>
+<meta charset="UTF-8">
+<title>Ejercicio 1</title>
 </head>
 
 <body>
 
+<saludo-persona></saludo-persona>
+
 <script>
 
-let nombre = prompt("Ingrese su nombre:");
-let apellido = prompt("Ingrese su apellido:");
+class SaludoPersona extends HTMLElement
+{
+    connectedCallback()
+    {
+        this.nombre = document.createElement("input");
 
-nombre = nombre.toLowerCase();
+        this.apellido = document.createElement("input");
 
-nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+        this.boton = document.createElement("button");
 
-apellido = apellido.toUpperCase();
+        this.resultado = document.createElement("p");
 
-alert(`¡Buenos días ${apellido}, ${nombre}!`);
+        this.boton.textContent = "Saludar";
+
+        this.appendChild(document.createTextNode("Nombre: "));
+        this.appendChild(this.nombre);
+
+        this.appendChild(document.createElement("br"));
+
+        this.appendChild(document.createTextNode("Apellido: "));
+        this.appendChild(this.apellido);
+
+        this.appendChild(document.createElement("br"));
+        this.appendChild(document.createElement("br"));
+
+        this.appendChild(this.boton);
+
+        this.appendChild(this.resultado);
+
+        this.boton.onclick = this.saludar.bind(this);
+    }
+
+    saludar()
+    {
+        let nombre =
+        this.nombre.value.toLowerCase();
+
+        nombre =
+        nombre.charAt(0).toUpperCase() +
+        nombre.slice(1);
+
+        let apellido =
+        this.apellido.value.toUpperCase();
+
+        this.resultado.textContent =
+        "¡Buenos días " +
+        apellido +
+        ", " +
+        nombre +
+        "!";
+    }
+}
+
+customElements.define(
+    "saludo-persona",
+    SaludoPersona
+);
 
 </script>
 

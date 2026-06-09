@@ -2,101 +2,80 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Graphic EQ</title>
 
-    <style>
+<meta charset="UTF-8">
 
-        body{
-            background:#c0c0c0;
-            font-family:Tahoma;
-            margin:0;
-            padding:20px;
-        }
+<title>Ecualizador WebComponent</title>
 
-        .equalizer{
-            width:760px;
-            background:#d4d0c8;
-            border:2px solid #808080;
-            padding:10px;
-            margin:auto;
-        }
+<style>
 
-        .header{
-            font-weight:bold;
-            margin-bottom:15px;
-        }
+body{
+    background:#cfcfcf;
+    font-family:Arial;
+}
 
-        .content{
-            display:flex;
-            justify-content:space-between;
-        }
+x-equalizer{
+    display:block;
+    width:fit-content;
+    margin:auto;
+    margin-top:20px;
+}
 
-        .bars{
-            display:flex;
-            gap:6px;
-        }
+.equalizer{
+    width:580px;
+    border:2px solid gray;
+    background:#d4d0c8;
+    padding:10px;
+}
 
-        .band{
-            width:60px;
-            height:240px;
+.top{
+    margin-bottom:15px;
+}
 
-            border:1px solid gray;
-            background:#efefef;
+.top h2{
+    margin:0;
+    font-size:18px;
+}
 
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:space-between;
+.equalizer-body{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+}
 
-            padding:5px;
-        }
+.band{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    border:1px solid gray;
+    padding:5px;
+    background:#e4e4e4;
+}
 
-        .freq{
-            font-size:12px;
-        }
+.band label{
+    margin-bottom:8px;
+    font-size:12px;
+}
 
-        .value{
-            font-size:12px;
-        }
+.band input[type=range]{
+    writing-mode:vertical-lr;
+    direction:rtl;
+    width:30px;
+    height:140px;
+}
 
-        .slider-container{
-            height:150px;
+.valor{
+    margin-top:8px;
+    font-size:12px;
+}
 
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        }
-
-        input[type=range]{
-            width:150px;
-            height:20px;
-
-            transform:rotate(-90deg);
-        }
-
-        .buttons{
-            display:flex;
-            flex-direction:column;
-            gap:10px;
-            margin-left:20px;
-        }
-
-        button{
-            width:90px;
-            padding:6px;
-            background:#d4d0c8;
-            border:1px solid black;
-            cursor:pointer;
-        }
-
-    </style>
+</style>
 
 </head>
 
 <body>
 
-</body>
+<x-equalizer></x-equalizer>
 
 <script>
 
@@ -108,120 +87,128 @@ class Equalizer extends HTMLElement
 
         this.data = {
 
-            "32Hz":0,
-            "64Hz":0,
-            "130Hz":0,
-            "260Hz":0,
-            "500Hz":0,
-            "1k":0,
-            "2k":0,
-            "4k":0,
-            "8k":0,
-            "16k":0
+            bandas:[
+                { frecuencia:"32Hz", valor:0 },
+                { frecuencia:"64Hz", valor:0 },
+                { frecuencia:"130Hz", valor:0 },
+                { frecuencia:"260Hz", valor:0 },
+                { frecuencia:"500Hz", valor:0 },
+                { frecuencia:"1k", valor:0 },
+                { frecuencia:"2k", valor:0 },
+                { frecuencia:"4k", valor:0 },
+                { frecuencia:"8.3k", valor:0 },
+                { frecuencia:"16.5k", valor:0 }
+            ]
 
         };
+    }
 
-        this.container = document.createElement('div');
-
-        this.container.className = 'equalizer';
-
-        this.header = document.createElement('div');
-
-        this.header.className = 'header';
-
-        this.header.innerText = 'Graphic EQ';
-
-        this.content = document.createElement('div');
-
-        this.content.className = 'content';
-
-        this.bars = document.createElement('div');
-
-        this.bars.className = 'bars';
-
-        this.buttons = document.createElement('div');
-
-        this.buttons.className = 'buttons';
-
-        let texts = ['OK', 'Cancel', 'Audition', 'Help'];
-
-        texts.forEach(t => {
-
-            let btn = document.createElement('button');
-
-            btn.innerText = t;
-
-            this.buttons.appendChild(btn);
-
-        });
-
-        this.content.appendChild(this.bars);
-
-        this.content.appendChild(this.buttons);
-
-        this.container.appendChild(this.header);
-
-        this.container.appendChild(this.content);
-
-        this.appendChild(this.container);
-
+    connectedCallback()
+    {
         this.render();
+
+        this.asignarEventos();
+    }
+
+    limpiarNodo(nodo)
+    {
+        while(nodo.firstChild)
+        {
+            nodo.removeChild(nodo.firstChild);
+        }
     }
 
     render()
     {
-        this.bars.innerHTML = "";
+        this.limpiarNodo(this);
 
-        for(let freq in this.data)
+        let container = document.createElement("div");
+
+        container.className = "equalizer";
+
+        let top = document.createElement("div");
+
+        top.className = "top";
+
+        let titulo = document.createElement("h2");
+
+        titulo.textContent = "Graphic EQ";
+
+        top.appendChild(titulo);
+
+        container.appendChild(top);
+
+        let body = document.createElement("div");
+
+        body.className = "equalizer-body";
+
+        for(let i = 0; i < this.data.bandas.length; i++)
         {
-            let band = document.createElement('div');
+            let banda = this.data.bandas[i];
 
-            band.className = 'band';
+            let divBand = document.createElement("div");
 
-            let freqLabel = document.createElement('div');
+            divBand.className = "band";
 
-            freqLabel.className = 'freq';
+            let label = document.createElement("label");
 
-            freqLabel.innerText = freq;
+            label.textContent = banda.frecuencia;
 
-            let sliderContainer = document.createElement('div');
+            divBand.appendChild(label);
 
-            sliderContainer.className = 'slider-container';
+            let slider = document.createElement("input");
 
-            let slider = document.createElement('input');
+            slider.type = "range";
 
-            slider.type = 'range';
+            slider.min = "-10";
 
-            slider.min = -10;
+            slider.max = "10";
 
-            slider.max = 10;
+            slider.value = banda.valor;
 
-            slider.value = this.data[freq];
+            slider.dataset.index = i;
 
-            let value = document.createElement('div');
+            divBand.appendChild(slider);
 
-            value.className = 'value';
+            let valor = document.createElement("div");
 
-            value.innerText = slider.value + ' dB';
+            valor.className = "valor";
 
-            slider.addEventListener('input', () => {
+            valor.textContent = banda.valor + " dB";
 
-                this.data[freq] = parseInt(slider.value);
+            divBand.appendChild(valor);
 
-                value.innerText = slider.value + ' dB';
-
-            });
-
-            sliderContainer.appendChild(slider);
-
-            band.appendChild(freqLabel);
-
-            band.appendChild(sliderContainer);
-
-            band.appendChild(value);
-
-            this.bars.appendChild(band);
+            body.appendChild(divBand);
         }
+
+        container.appendChild(body);
+
+        this.appendChild(container);
+    }
+
+    asignarEventos()
+    {
+        let sliders = this.querySelectorAll("input[type=range]");
+
+        for(let i = 0; i < sliders.length; i++)
+        {
+            sliders[i].oninput = this.actualizarSlider.bind(this);
+        }
+    }
+
+    actualizarSlider(evento)
+    {
+        let slider = evento.target;
+
+        let index = slider.dataset.index;
+
+        this.data.bandas[index].valor = slider.value;
+
+        let valorTexto =
+        slider.parentElement.querySelector(".valor");
+
+        valorTexto.textContent =
+        slider.value + " dB";
     }
 
     getData()
@@ -229,61 +216,20 @@ class Equalizer extends HTMLElement
         return this.data;
     }
 
-    setData(newData)
+    setData(data)
     {
-        for(let key in newData)
-        {
-            if(this.data.hasOwnProperty(key))
-            {
-                this.data[key] = newData[key];
-            }
-        }
+        this.data = data;
 
         this.render();
-    }
 
-    connectedCallback()
-    {
-        console.log('Equalizer agregado al DOM');
-    }
-
-    disconnectedCallback()
-    {
-        console.log('Equalizer eliminado del DOM');
+        this.asignarEventos();
     }
 }
 
-customElements.define('x-equalizer', Equalizer);
-
-// MAIN
-window.onload = () => {
-
-    let eq = new Equalizer();
-
-    document.body.appendChild(eq);
-
-    // DEMO
-    setTimeout(() => {
-
-        eq.setData({
-
-            "32Hz":5,
-            "64Hz":8,
-            "130Hz":-4,
-            "260Hz":2,
-            "500Hz":10,
-            "1k":-3,
-            "2k":4,
-            "4k":-8,
-            "8k":6,
-            "16k":1
-
-        });
-
-    }, 2000);
-
-};
+customElements.define("x-equalizer", Equalizer);
 
 </script>
+
+</body>
 
 </html>

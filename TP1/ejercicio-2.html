@@ -2,37 +2,100 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Ejercicio 2</title>
+<meta charset="UTF-8">
+<title>Ejercicio 2</title>
 </head>
 
 <body>
 
+<validador-fecha></validador-fecha>
+
 <script>
 
-let fecha;
-let intentos = 0;
-let valida = false;
-
-while(!valida)
+class ValidadorFecha extends HTMLElement
 {
-    fecha = prompt("Ingrese su fecha de nacimiento (YYYY-MM-DD)");
-
-    let fechaObj = new Date(fecha);
-
-    if(fechaObj != "Invalid Date" && !isNaN(fechaObj))
+    connectedCallback()
     {
-        valida = true;
+        this.reintentos = 0;
 
-        alert("Fecha válida: " + fecha);
+        this.fecha = document.createElement("input");
+
+        this.boton = document.createElement("button");
+
+        this.resultado = document.createElement("p");
+
+        this.boton.textContent = "Validar";
+
+        this.appendChild(
+            document.createTextNode(
+                "Fecha (dd/mm/aaaa): "
+            )
+        );
+
+        this.appendChild(this.fecha);
+
+        this.appendChild(document.createElement("br"));
+        this.appendChild(document.createElement("br"));
+
+        this.appendChild(this.boton);
+
+        this.appendChild(this.resultado);
+
+        this.boton.onclick =
+        this.validar.bind(this);
     }
-    else
-    {
-        intentos++;
 
-        alert("Fecha inválida. Reintento número: " + intentos);
+    validar()
+    {
+        let partes =
+        this.fecha.value.split("/");
+
+        let valida = false;
+
+        if(partes.length === 3)
+        {
+            let dia =
+            parseInt(partes[0]);
+
+            let mes =
+            parseInt(partes[1]);
+
+            let anio =
+            parseInt(partes[2]);
+
+            let fecha =
+            new Date(
+                anio,
+                mes - 1,
+                dia
+            );
+
+            valida =
+            fecha.getDate() === dia &&
+            fecha.getMonth() === mes - 1 &&
+            fecha.getFullYear() === anio;
+        }
+
+        if(valida)
+        {
+            this.resultado.textContent =
+            "Fecha válida";
+        }
+        else
+        {
+            this.reintentos++;
+
+            this.resultado.textContent =
+            "Fecha inválida. Reintento N° " +
+            this.reintentos;
+        }
     }
 }
+
+customElements.define(
+    "validador-fecha",
+    ValidadorFecha
+);
 
 </script>
 

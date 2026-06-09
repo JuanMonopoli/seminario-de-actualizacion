@@ -2,124 +2,124 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Chat WebComponent</title>
+<meta charset="UTF-8">
+<title>Chat WebComponent</title>
 
-    <style>
+<style>
 
-        body{
-            background:#ece5dd;
-            font-family:Arial;
-            margin:0;
-            padding:20px;
+body{
+    background:#ece5dd;
+    font-family:Arial;
+    margin:0;
+    padding:20px;
 
-            display:flex;
-            justify-content:center;
-        }
+    display:flex;
+    justify-content:center;
+}
 
-        .chat-container{
-            width:400px;
-            height:600px;
+.chat-container{
+    width:400px;
+    height:600px;
 
-            background:white;
+    background:white;
 
-            border-radius:10px;
+    border-radius:10px;
 
-            box-shadow:0px 0px 10px rgba(0,0,0,0.3);
+    box-shadow:0px 0px 10px rgba(0,0,0,0.3);
 
-            display:flex;
-            flex-direction:column;
+    display:flex;
+    flex-direction:column;
 
-            overflow:hidden;
-        }
+    overflow:hidden;
+}
 
-        .chat-header{
-            background:#075e54;
+.chat-header{
+    background:#075e54;
 
-            color:white;
+    color:white;
 
-            padding:15px;
+    padding:15px;
 
-            font-size:20px;
+    font-size:20px;
 
-            font-weight:bold;
-        }
+    font-weight:bold;
+}
 
-        .chat-messages{
-            flex:1;
+.chat-messages{
+    flex:1;
 
-            padding:10px;
+    padding:10px;
 
-            overflow-y:auto;
+    overflow-y:auto;
 
-            background:#e5ddd5;
+    background:#e5ddd5;
 
-            display:flex;
+    display:flex;
 
-            flex-direction:column;
-        }
+    flex-direction:column;
+}
 
-        .message{
-            max-width:70%;
+.message{
+    max-width:70%;
 
-            padding:10px;
+    padding:10px;
 
-            margin-bottom:10px;
+    margin-bottom:10px;
 
-            border-radius:10px;
+    border-radius:10px;
 
-            word-wrap:break-word;
-        }
+    word-wrap:break-word;
+}
 
-        .received{
-            background:white;
+.received{
+    background:white;
 
-            align-self:flex-start;
-        }
+    align-self:flex-start;
+}
 
-        .sent{
-            background:#dcf8c6;
+.sent{
+    background:#dcf8c6;
 
-            align-self:flex-end;
-        }
+    align-self:flex-end;
+}
 
-        .chat-input{
-            display:flex;
+.chat-input{
+    display:flex;
 
-            padding:10px;
+    padding:10px;
 
-            background:#f0f0f0;
-        }
+    background:#f0f0f0;
+}
 
-        .chat-input input{
-            flex:1;
+.chat-input input{
+    flex:1;
 
-            padding:10px;
+    padding:10px;
 
-            border:none;
+    border:none;
 
-            border-radius:5px;
+    border-radius:5px;
 
-            outline:none;
-        }
+    outline:none;
+}
 
-        .chat-input button{
-            margin-left:10px;
+.chat-input button{
+    margin-left:10px;
 
-            padding:10px 15px;
+    padding:10px 15px;
 
-            border:none;
+    border:none;
 
-            background:#075e54;
+    background:#075e54;
 
-            color:white;
+    color:white;
 
-            border-radius:5px;
+    border-radius:5px;
 
-            cursor:pointer;
-        }
+    cursor:pointer;
+}
 
-    </style>
+</style>
 
 </head>
 
@@ -138,71 +138,65 @@ class ChatComponent extends HTMLElement
         this.messages = [];
 
         this.container = document.createElement('div');
-
         this.container.className = 'chat-container';
 
         this.header = document.createElement('div');
-
         this.header.className = 'chat-header';
-
         this.header.innerText = 'Chat';
 
         this.chatMessages = document.createElement('div');
-
         this.chatMessages.className = 'chat-messages';
 
         this.inputContainer = document.createElement('div');
-
         this.inputContainer.className = 'chat-input';
 
         this.input = document.createElement('input');
-
         this.input.placeholder = 'Escriba un mensaje...';
 
         this.button = document.createElement('button');
-
         this.button.innerText = 'Enviar';
 
-        this.button.onclick = () => {
-
-            if(this.input.value.trim() != "")
-            {
-                this.addMessage(
-
-                    'Juan',
-                    this.input.value,
-                    'sent'
-
-                );
-
-                this.input.value = '';
-            }
-
-        };
-
-        this.input.addEventListener('keypress', (e) => {
-
-            if(e.key === 'Enter')
-            {
-                this.button.click();
-            }
-
-        });
-
         this.inputContainer.appendChild(this.input);
-
         this.inputContainer.appendChild(this.button);
 
         this.container.appendChild(this.header);
-
         this.container.appendChild(this.chatMessages);
-
         this.container.appendChild(this.inputContainer);
 
         this.appendChild(this.container);
     }
 
-    addMessage(usuario, texto, tipo = 'received')
+    connectedCallback()
+    {
+        this.button.onclick =
+        this.enviarMensaje.bind(this);
+
+        this.input.onkeypress =
+        this.controlEnter.bind(this);
+    }
+
+    enviarMensaje()
+    {
+        if(this.input.value.trim() != "")
+        {
+            this.sendMessage(
+                'Juan',
+                this.input.value
+            );
+
+            this.input.value = '';
+        }
+    }
+
+    controlEnter(e)
+    {
+        if(e.key === 'Enter')
+        {
+            this.button.click();
+        }
+    }
+
+    addMessage(usuario, texto, tipo)
     {
         this.messages.push({
 
@@ -212,37 +206,81 @@ class ChatComponent extends HTMLElement
 
         });
 
-        let message = document.createElement('div');
+        let message =
+        document.createElement('div');
 
-        message.className = 'message ' + tipo;
+        message.className =
+        'message ' + tipo;
 
-        message.innerHTML = `
+        let nombre =
+        document.createElement('b');
 
-            <b>${usuario}</b><br>
-            ${texto}
+        nombre.innerText =
+        usuario;
 
-        `;
+        message.appendChild(nombre);
 
-        this.chatMessages.appendChild(message);
+        message.appendChild(
+            document.createElement('br')
+        );
 
-        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+        let contenido =
+        document.createTextNode(texto);
+
+        message.appendChild(
+            contenido
+        );
+
+        this.chatMessages.appendChild(
+            message
+        );
+
+        this.chatMessages.scrollTop =
+        this.chatMessages.scrollHeight;
+    }
+
+    sendMessage(usuario, texto)
+    {
+        this.addMessage(
+            usuario,
+            texto,
+            'sent'
+        );
+    }
+
+    receiveMessage(usuario, texto)
+    {
+        this.addMessage(
+            usuario,
+            texto,
+            'received'
+        );
     }
 
     insertMessages(mensajes)
     {
         this.clearChat();
 
-        mensajes.forEach(m => {
+        for(let i = 0; i < mensajes.length; i++)
+        {
+            let m =
+            mensajes[i];
 
-            this.addMessage(
-
-                m.usuario,
-                m.texto,
-                m.tipo
-
-            );
-
-        });
+            if(m.tipo === 'sent')
+            {
+                this.sendMessage(
+                    m.usuario,
+                    m.texto
+                );
+            }
+            else
+            {
+                this.receiveMessage(
+                    m.usuario,
+                    m.texto
+                );
+            }
+        }
     }
 
     getMessages()
@@ -254,40 +292,12 @@ class ChatComponent extends HTMLElement
     {
         this.messages = [];
 
-        this.chatMessages.innerHTML = '';
-    }
-
-    connectedCallback()
-    {
-        console.log('Chat conectado');
-
-        this.insertMessages([
-
-            {
-                usuario:'Pedro',
-                texto:'Hola Juan',
-                tipo:'received'
-            },
-
-            {
-                usuario:'Juan',
-                texto:'Hola Pedro ¿cómo estás?',
-                tipo:'sent'
-            },
-
-            {
-                usuario:'Pedro',
-                texto:'Todo bien',
-                tipo:'received'
-            },
-
-            {
-                usuario:'Juan',
-                texto:'Genial',
-                tipo:'sent'
-            }
-
-        ]);
+        while(this.chatMessages.firstChild)
+        {
+            this.chatMessages.removeChild(
+                this.chatMessages.firstChild
+            );
+        }
     }
 
     disconnectedCallback()
@@ -296,15 +306,50 @@ class ChatComponent extends HTMLElement
     }
 }
 
-customElements.define('x-chat', ChatComponent);
+customElements.define(
+    'x-chat',
+    ChatComponent
+);
 
-window.onload = () => {
+function main()
+{
+    let chat =
+    new ChatComponent();
 
-    let chat = new ChatComponent();
+    document.body.appendChild(
+        chat
+    );
 
-    document.body.appendChild(chat);
+    chat.insertMessages([
 
-};
+        {
+            usuario:'Pedro',
+            texto:'Hola Juan',
+            tipo:'received'
+        },
+
+        {
+            usuario:'Juan',
+            texto:'Hola Pedro ¿cómo estás?',
+            tipo:'sent'
+        },
+
+        {
+            usuario:'Pedro',
+            texto:'Todo bien',
+            tipo:'received'
+        },
+
+        {
+            usuario:'Juan',
+            texto:'Genial',
+            tipo:'sent'
+        }
+
+    ]);
+}
+
+window.onload = main;
 
 </script>
 

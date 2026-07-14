@@ -101,13 +101,30 @@ class Equalizer extends HTMLElement
             ]
 
         };
+
+        this._onSliderInput = this.actualizarSlider.bind(this);
+
+        this.render();
     }
 
     connectedCallback()
     {
-        this.render();
+        let sliders = this.querySelectorAll("input[type=range]");
 
-        this.asignarEventos();
+        for(let i = 0; i < sliders.length; i++)
+        {
+            sliders[i].addEventListener("input", this._onSliderInput);
+        }
+    }
+
+    disconnectedCallback()
+    {
+        let sliders = this.querySelectorAll("input[type=range]");
+
+        for(let i = 0; i < sliders.length; i++)
+        {
+            sliders[i].removeEventListener("input", this._onSliderInput);
+        }
     }
 
     limpiarNodo(nodo)
@@ -186,16 +203,6 @@ class Equalizer extends HTMLElement
         this.appendChild(container);
     }
 
-    asignarEventos()
-    {
-        let sliders = this.querySelectorAll("input[type=range]");
-
-        for(let i = 0; i < sliders.length; i++)
-        {
-            sliders[i].oninput = this.actualizarSlider.bind(this);
-        }
-    }
-
     actualizarSlider(evento)
     {
         let slider = evento.target;
@@ -222,7 +229,12 @@ class Equalizer extends HTMLElement
 
         this.render();
 
-        this.asignarEventos();
+        let sliders = this.querySelectorAll("input[type=range]");
+
+        for(let i = 0; i < sliders.length; i++)
+        {
+            sliders[i].addEventListener("input", this._onSliderInput);
+        }
     }
 }
 

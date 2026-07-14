@@ -133,11 +133,25 @@ class TablaClima extends HTMLElement
 
         };
 
+        this.mostrarPromedios = this.mostrarPromedios.bind(this);
+        this.alternarTemperatura = this.alternarTemperatura.bind(this);
+    }
+
+    connectedCallback()
+    {
         this.render();
+    }
+
+    disconnectedCallback()
+    {
+        this.desvincularEventos();
     }
 
     render()
     {
+
+        this.desvincularEventos();
+
         this.innerHTML = `
 
         <table>
@@ -220,13 +234,13 @@ class TablaClima extends HTMLElement
 
         <div class="botones">
 
-            <button onclick="document.querySelector('tabla-clima').mostrarPromedios()">
+            <button id="btn-promedios">
 
                 Obtener Promedios
 
             </button>
 
-            <button onclick="document.querySelector('tabla-clima').alternarTemperatura()">
+            <button id="btn-alternar">
 
                 Cambiar a °${this.unidad === "C" ? "F" : "C"}
 
@@ -235,6 +249,32 @@ class TablaClima extends HTMLElement
         </div>
 
         `;
+
+        this.vincularEventos();
+    }
+
+    vincularEventos()
+    {
+        this.querySelector("#btn-promedios").addEventListener("click", this.mostrarPromedios);
+
+        this.querySelector("#btn-alternar").addEventListener("click", this.alternarTemperatura);
+    }
+
+    desvincularEventos()
+    {
+        const botonPromedios = this.querySelector("#btn-promedios");
+
+        const botonAlternar = this.querySelector("#btn-alternar");
+
+        if(botonPromedios)
+        {
+            botonPromedios.removeEventListener("click", this.mostrarPromedios);
+        }
+
+        if(botonAlternar)
+        {
+            botonAlternar.removeEventListener("click", this.alternarTemperatura);
+        }
     }
 
     convertir(valor)

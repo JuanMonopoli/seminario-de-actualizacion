@@ -112,7 +112,18 @@ class TablaClima extends HTMLElement
 
         };
 
+        this.mostrarPromedios = this.mostrarPromedios.bind(this);
+    }
+
+    connectedCallback()
+    {
         this.render();
+        this.vincularEventos();
+    }
+
+    disconnectedCallback()
+    {
+        this.desvincularEventos();
     }
 
     render()
@@ -199,13 +210,28 @@ class TablaClima extends HTMLElement
 
         <br>
 
-        <button onclick="document.querySelector('tabla-clima').mostrarPromedios()">
+        <button id="btn-promedios">
 
             Obtener Promedios
 
         </button>
 
         `;
+    }
+
+    vincularEventos()
+    {
+        this.querySelector("#btn-promedios").addEventListener("click", this.mostrarPromedios);
+    }
+
+    desvincularEventos()
+    {
+        const boton = this.querySelector("#btn-promedios");
+
+        if(boton)
+        {
+            boton.removeEventListener("click", this.mostrarPromedios);
+        }
     }
 
     getPromedios()

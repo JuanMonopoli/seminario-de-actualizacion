@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Clima Mar del Plata</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:20px;
+    background:#d9d9d9;
+    font-family:Arial;
+}
+
+tabla-clima{
+    display:block;
+    width:fit-content;
+    margin:auto;
+}
+
+table{
+    border-collapse:collapse;
+    text-align:center;
+    background:white;
+}
+
+th, td{
+    border:1px solid gray;
+    padding:8px;
+    font-size:14px;
+}
+
+.titulo{
+    background:#ececec;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.meses{
+    background:#e6e6e6;
+    font-weight:bold;
+}
+
+.maxAbs{
+    background:#ff0000;
+    color:white;
+}
+
+.maxMedia{
+    background:#ff8c00;
+}
+
+.media{
+    background:#ffd966;
+}
+
+.minMedia{
+    background:#fff2cc;
+}
+
+.minAbs{
+    background:#b4c7e7;
+}
+
+.precipitacion{
+    background:#6d9eeb;
+    color:white;
+}
+
+.humedad{
+    background:#0000ff;
+    color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<tabla-clima></tabla-clima>
+
+<script>
+
+class TablaClima extends HTMLElement
+{
+    constructor()
+    {
+        super();
+
+        this.data = {
+
+            meses:["Ene.","Feb.","Mar.","Abr.","May.","Jun.","Jul.","Ago.","Sep.","Oct.","Nov.","Dic.","Anual"],
+
+            maxAbs:[42.4,38.1,36.3,32.5,27.4,22.2,27.7,24.7,28.8,34.4,35.7,39.4,39.4],
+
+            maxMedia:[26.3,25.8,23.7,20.5,16.8,13.8,13.1,14.4,16.0,18.5,21.7,24.4,19.6],
+
+            media:[20.3,19.9,18.0,14.6,11.3,8.5,8.1,8.9,10.5,13.1,15.9,18.5,14.0],
+
+            minMedia:[14.3,14.1,12.5,9.1,6.4,4.1,3.8,4.0,5.3,7.6,10.1,12.7,8.7],
+
+            minAbs:[4.7,1.2,1.9,-1.0,-3.0,-5.5,-9.3,-8.4,-5.5,-3.0,-2.0,-0.2,-9.3],
+
+            precipitacion:[100.1,72.8,107.0,73.3,73.5,54.9,58.9,64.0,56.4,83.4,75.3,104.0,923.6],
+
+            humedad:[76,77,79,81,83,84,81,81,80,80,77,76,80]
+
+        };
+
+        this.render();
+    }
+
+    limpiarNodo(nodo)
+    {
+        while(nodo.firstChild)
+        {
+            nodo.removeChild(nodo.firstChild);
+        }
+    }
+
+    crearFilaTitulo()
+    {
+        let fila = document.createElement("tr");
+
+        let th = document.createElement("th");
+
+        th.className = "titulo";
+
+        th.colSpan = 14;
+
+        th.textContent = "Parámetros climáticos promedio de Mar del Plata, BA (1961–1990)";
+
+        fila.appendChild(th);
+
+        return fila;
+    }
+
+    crearFilaMeses()
+    {
+        let fila = document.createElement("tr");
+
+        fila.className = "meses";
+
+        let thMes = document.createElement("th");
+
+        thMes.textContent = "Mes";
+
+        fila.appendChild(thMes);
+
+        for(let i = 0; i < this.data.meses.length; i++)
+        {
+            let th = document.createElement("th");
+
+            th.textContent = this.data.meses[i];
+
+            fila.appendChild(th);
+        }
+
+        return fila;
+    }
+
+    crearFilaDatos(etiqueta, valores, claseCelda)
+    {
+        let fila = document.createElement("tr");
+
+        let tdEtiqueta = document.createElement("td");
+
+        let negrita = document.createElement("b");
+
+        negrita.textContent = etiqueta;
+
+        tdEtiqueta.appendChild(negrita);
+
+        fila.appendChild(tdEtiqueta);
+
+        for(let i = 0; i < valores.length; i++)
+        {
+            let td = document.createElement("td");
+
+            td.className = claseCelda;
+
+            td.textContent = valores[i];
+
+            fila.appendChild(td);
+        }
+
+        return fila;
+    }
+
+    crearTabla()
+    {
+        let tabla = document.createElement("table");
+
+        tabla.appendChild(this.crearFilaTitulo());
+
+        tabla.appendChild(this.crearFilaMeses());
+
+        tabla.appendChild(this.crearFilaDatos("Temp. máx. abs. (°C)", this.data.maxAbs, "maxAbs"));
+
+        tabla.appendChild(this.crearFilaDatos("Temp. máx. media (°C)", this.data.maxMedia, "maxMedia"));
+
+        tabla.appendChild(this.crearFilaDatos("Temp. media (°C)", this.data.media, "media"));
+
+        tabla.appendChild(this.crearFilaDatos("Temp. mín. media (°C)", this.data.minMedia, "minMedia"));
+
+        tabla.appendChild(this.crearFilaDatos("Temp. mín. abs. (°C)", this.data.minAbs, "minAbs"));
+
+        tabla.appendChild(this.crearFilaDatos("Precipitación total (mm)", this.data.precipitacion, "precipitacion"));
+
+        tabla.appendChild(this.crearFilaDatos("Humedad relativa (%)", this.data.humedad, "humedad"));
+
+        return tabla;
+    }
+
+    crearBotonPromedios()
+    {
+        let boton = document.createElement("button");
+
+        boton.textContent = "Obtener Promedios";
+
+        boton.addEventListener("click", () => this.mostrarPromedios());
+
+        return boton;
+    }
+
+    render()
+    {
+        this.limpiarNodo(this);
+
+        this.appendChild(this.crearTabla());
+
+        this.appendChild(document.createElement("br"));
+
+        this.appendChild(this.crearBotonPromedios());
+    }
+
+    getPromedios()
+    {
+        return {
+
+            promedioMaxAbs : this.promedio(this.data.maxAbs),
+
+            promedioMaxMedia : this.promedio(this.data.maxMedia),
+
+            promedioMedia : this.promedio(this.data.media),
+
+            promedioMinMedia : this.promedio(this.data.minMedia),
+
+            promedioMinAbs : this.promedio(this.data.minAbs)
+
+        };
+    }
+
+    promedio(array)
+    {
+        let suma = 0;
+
+        for(let i=0; i<array.length; i++)
+        {
+            suma += array[i];
+        }
+
+        return (suma / array.length).toFixed(2);
+    }
+
+    mostrarPromedios()
+    {
+        let promedios = this.getPromedios();
+
+        alert(
+
+            "Promedio Temp. Máx. Abs: " + promedios.promedioMaxAbs + "°C\n" +
+
+            "Promedio Temp. Máx. Media: " + promedios.promedioMaxMedia + "°C\n" +
+
+            "Promedio Temp. Media: " + promedios.promedioMedia + "°C\n" +
+
+            "Promedio Temp. Mín. Media: " + promedios.promedioMinMedia + "°C\n" +
+
+            "Promedio Temp. Mín. Abs: " + promedios.promedioMinAbs + "°C"
+
+        );
+    }
+}
+
+customElements.define("tabla-clima", TablaClima);
+
+</script>
+
+</body>
+
+</html>

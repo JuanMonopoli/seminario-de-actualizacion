@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Unidad-3</title>
+    <meta name="generator" content="Geany 2.0" />
+</head>
+
+<body>
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+    }
+
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+
+class View extends HTMLElement {
+    constructor() 
+    {
+        super();
+
+        this._canvas = document.createElement('canvas');
+
+        this._canvas.width = 500;
+        this._canvas.height = 500;
+
+        this._canvas.style.border = '1px solid black';
+
+        let ctx = this._canvas.getContext('2d');
+
+        dibujarCirculos(ctx, this._canvas.width, this._canvas.height);
+
+        this.appendChild(this._canvas);
+    }
+    
+    set value(x) {
+       
+    }
+   
+    get value() {
+        
+    }
+
+    connectedCallback() {
+        console.log('Canvas agregado...')
+    }
+
+    disconnectedCallback() {
+        
+    }
+    
+    _onSave() {
+       
+    }
+}
+
+
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+
+    onModelChanged() {
+        
+    }
+
+    onViewRequest(event) {
+       
+    }
+}
+
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+
+    myController.enable();
+
+    document.body.appendChild(myView);
+}
+
+window.onload = main;
+
+
+function dibujarCirculos(ctx, ancho, alto) {
+
+    let cx = ancho / 2;
+    let cy = alto / 2;
+
+    let puntajes = [1000, 750, 500, 100, 50];
+
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let radio = 50, i = 0; radio <= 250; radio += 50, i++) {
+
+        ctx.beginPath();
+
+        ctx.arc(cx, cy, radio, 0, 2 * Math.PI);
+
+        ctx.stroke();
+
+        if (i === 0) {
+
+            ctx.fillText(puntajes[i], cx, cy);
+
+        } else {
+
+            let radioAnterior = radio - 50;
+
+            let puntoMedio = (radioAnterior + radio) / 2;
+
+            ctx.fillText(puntajes[i], cx, cy - puntoMedio);
+        }
+    }
+}
+
+</script>
+
+</html>

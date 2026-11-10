@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+<meta name="generator" content="Geany 2.0" />
+</head>
+
+<body>
+
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() 
+    {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 800;
+        this._canvas.style.border = '1px solid black';
+
+        let ctx = this._canvas.getContext('2d');
+
+        dibujarCilindro(ctx, this._canvas.width, this._canvas.height, 150, 50, 300);
+
+        this.appendChild(this._canvas);
+    }
+    
+    set value(x) {
+       
+    }
+   
+    get value() {
+        
+    }
+    connectedCallback() {
+       console.log('Canvas agregado...')
+    }
+    disconnectedCallback() {
+        
+    }
+    
+    _onSave() {
+       
+    }
+}
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+    onModelChanged() {
+        
+    }
+    onViewRequest(event) {
+       
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+window.onload = main;
+
+
+
+// Dibuja un cilindro centrado en el área de dibujo.
+// radioX / radioY: semiejes de la elipse de las tapas (radioY chico = vista casi de frente).
+// alto: distancia entre el centro de la tapa superior y el de la base.
+// Cada región lleva su propio gradiente para simular el volumen 3D:
+//   - cuerpo: gradiente horizontal (bordes oscuros, brillo hacia la izquierda del centro)
+//   - tapa superior: gradiente diagonal más claro, como si recibiera la luz de arriba
+function dibujarCilindro(ctx, anchoCanvas, altoCanvas, radioX, radioY, alto) {
+    let cx = anchoCanvas / 2;
+    let yTapa = altoCanvas / 2 - alto / 2;   // centro de la elipse superior
+    let yBase = yTapa + alto;                // centro de la elipse inferior
+
+    // ---- 1. CUERPO ----
+    // contorno: lado izquierdo hacia abajo, arco frontal de la base (de izquierda a
+    // derecha por abajo), lado derecho hacia arriba y arco frontal de la tapa (de
+    // derecha a izquierda por abajo) para cerrar
+    ctx.beginPath();
+    ctx.moveTo(cx - radioX, yTapa);
+    ctx.lineTo(cx - radioX, yBase);
+    ctx.ellipse(cx, yBase, radioX, radioY, 0, Math.PI, 0, true);
+    ctx.lineTo(cx + radioX, yTapa);
+    ctx.ellipse(cx, yTapa, radioX, radioY, 0, 0, Math.PI, false);
+    ctx.closePath();
+
+    let gradienteCuerpo = ctx.createLinearGradient(cx - radioX, 0, cx + radioX, 0);
+    gradienteCuerpo.addColorStop(0,    '#1a3f73'); // borde izquierdo en sombra
+    gradienteCuerpo.addColorStop(0.25, '#5aa0f0');
+    gradienteCuerpo.addColorStop(0.4,  '#9fd0ff'); // zona de brillo
+    gradienteCuerpo.addColorStop(0.7,  '#3b78c4');
+    gradienteCuerpo.addColorStop(1,    '#123055'); // borde derecho en sombra
+
+    ctx.fillStyle = gradienteCuerpo;
+    ctx.fill();
+    ctx.stroke();
+
+    // ---- 2. TAPA SUPERIOR ----
+    ctx.beginPath();
+    ctx.ellipse(cx, yTapa, radioX, radioY, 0, 0, Math.PI * 2);
+
+    let gradienteTapa = ctx.createLinearGradient(cx - radioX, yTapa - radioY, cx + radioX, yTapa + radioY);
+    gradienteTapa.addColorStop(0, '#e3f1ff');
+    gradienteTapa.addColorStop(1, '#7fb4f0');
+
+    ctx.fillStyle = gradienteTapa;
+    ctx.fill();
+    ctx.stroke();
+}
+
+</script>
+
+</html>

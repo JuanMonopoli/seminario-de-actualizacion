@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+</head>
+
+<body>
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        this._rects = [];
+    }
+
+    get rects() {
+        return this._rects;
+    }
+
+    addRect(x, y, width, height, skew) {
+        this._rects.push({ x, y, width, height, skew });
+        this.changed();
+    }
+
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 600;
+        this._canvas.style.border = '1px solid black';
+        this._ctx = this._canvas.getContext('2d');
+        this._value = [];
+        this.appendChild(this._canvas);
+    }
+
+    set value(rects) {
+        this._value = rects;
+        this._render();
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    _render() {
+        this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        for (const { x, y, width, height, skew } of this._value) {
+            this._ctx.save();
+            this._ctx.translate(x, y);
+            this._ctx.transform(1, Math.tan(skew), 0, 1, 0, 0);
+            this._ctx.beginPath();
+            this._ctx.rect(-width / 2, -height / 2, width, height);
+            this._ctx.closePath();
+            this._ctx.stroke();
+            this._ctx.restore();
+        }
+    }
+}
+customElements.define('x-view', View);
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+
+    onModelChanged() {
+        this._view.value = this._model.rects;
+    }
+
+    onViewRequest(event) {
+    }
+}
+
+function main() {
+    const myModel = new Model();
+    const myView = new View();
+    const myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+    myModel.addRect(400, 300, 250, 150, Math.PI / 8);
+}
+window.onload = main;
+
+</script>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+<meta name="generator" content="Geany 2.0" />
+</head>
+
+<body>
+
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() 
+    {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 800;
+        this._canvas.style.border = '1px solid black';
+
+        let ctx = this._canvas.getContext('2d');
+
+        let datos = [0.30, 0.50, 0.10, 0.10];
+
+        dibujarGraficoTorta(ctx, this._canvas.width, this._canvas.height, datos);
+
+        this.appendChild(this._canvas);
+    }
+    
+    set value(x) {
+       
+    }
+   
+    get value() {
+        
+    }
+    connectedCallback() {
+       console.log('Canvas agregado...')
+    }
+    disconnectedCallback() {
+        
+    }
+    
+    _onSave() {
+       
+    }
+}
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+    onModelChanged() {
+        
+    }
+    onViewRequest(event) {
+       
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+window.onload = main;
+
+
+function dibujarGraficoTorta(ctx, anchoCanvas, altoCanvas, datos) {
+    let cx = anchoCanvas / 2;
+    let cy = altoCanvas / 2;
+    let radio = 200;
+
+    let colores = ['red', 'blue', 'green', 'white', 'yellow', 'purple'];
+
+    let anguloInicio = -Math.PI / 2;
+
+    datos.forEach((valor, i) => {
+
+        let anguloBarrido = valor * 2 * Math.PI;
+        let anguloFin = anguloInicio + anguloBarrido;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radio, anguloInicio, anguloFin);
+        ctx.closePath();
+        ctx.fillStyle = colores[i % colores.length];
+        ctx.fill();
+        ctx.stroke();
+
+        let anguloMedio = anguloInicio + anguloBarrido / 2;
+        let radioTexto = radio * 0.65;
+        let tx = cx + radioTexto * Math.cos(anguloMedio);
+        let ty = cy + radioTexto * Math.sin(anguloMedio);
+
+        ctx.fillStyle = 'black';
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(Math.round(valor * 100) + '%', tx, ty);
+
+        anguloInicio = anguloFin;
+    });
+}
+
+</script>
+
+</html>

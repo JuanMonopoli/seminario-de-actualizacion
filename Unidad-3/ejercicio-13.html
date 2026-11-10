@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+<meta name="generator" content="Geany 2.0" />
+</head>
+
+<body>
+
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        
+        this._color = { r: 0, g: 0, b: 0 };
+    }
+
+    get color() {
+        return { ...this._color };
+    }
+
+    cambiarComponente(componente, valor) {
+        if (!this._color.hasOwnProperty(componente)) {
+            throw new Error('Componente inválido: ' + componente);
+        }
+        if (!Number.isInteger(valor) || valor < 0 || valor > 255) {
+            throw new Error('El valor debe ser un entero entre 0 y 255.');
+        }
+        this._color[componente] = valor;
+        this.changed();
+    }
+
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class Slider extends HTMLElement {
+    constructor() {
+        super();
+        this.style.display = 'block';
+
+        this._etiqueta = document.createElement('label');
+        this._entrada = document.createElement('input');
+        this._entrada.type = 'range';
+        this._entrada.min = 0;
+        this._entrada.max = 255;
+        this._entrada.value = 0;
+        this._salida = document.createElement('span');
+        this._salida.innerText = '0';
+
+        this.appendChild(this._etiqueta);
+        this.appendChild(this._entrada);
+        this.appendChild(this._salida);
+
+        this._onInput = this._onInput.bind(this);
+    }
+
+    set etiqueta(texto) {
+        this._etiqueta.innerText = texto;
+    }
+
+    set value(valor) {
+        this._entrada.value = valor;
+        this._salida.innerText = valor;
+    }
+
+    get value() {
+        return Number(this._entrada.value);
+    }
+
+    connectedCallback() {
+        this._entrada.addEventListener('input', this._onInput);
+    }
+
+    disconnectedCallback() {
+        this._entrada.removeEventListener('input', this._onInput);
+    }
+
+    _onInput() {
+        this._salida.innerText = this._entrada.value;
+        this.dispatchEvent(new CustomEvent('request', { detail: { valor: this.value } }));
+    }
+}
+customElements.define('x-slider', Slider);
+
+
+class View extends HTMLElement {
+    constructor() 
+    {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 8 * 32;
+        this._canvas.height = 8 * 32;
+        this._canvas.style.border = '1px solid black';
+        this._ctx = this._canvas.getContext('2d');
+
+        this._color = { r: 0, g: 0, b: 0 };
+
+        const controles = document.createElement('div');
+        this._sliders = {};
+        [['r', 'R'], ['g', 'G'], ['b', 'B']].forEach(([componente, etiqueta]) => {
+            const slider = new Slider();
+            slider.etiqueta = etiqueta;
+            slider.addEventListener('request', event => {
+                this.dispatchEvent(new CustomEvent('request', {
+                    detail: { componente, valor: event.detail.valor }
+                }));
+            });
+            this._sliders[componente] = slider;
+            controles.appendChild(slider);
+        });
+
+        this.appendChild(this._canvas);
+        this.appendChild(controles);
+    }
+    
+    set value(color) {
+        this._color = color;
+        for (const componente in this._sliders) {
+            this._sliders[componente].value = color[componente];
+        }
+        dibujarTablero(this._ctx, 32, 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')');
+    }
+   
+    get value() {
+        return this._color;
+    }
+    connectedCallback() {
+       console.log('Canvas agregado...')
+    }
+    disconnectedCallback() {
+        
+    }
+}
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+        this._view.value = this._model.color;
+    }
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+    onModelChanged() {
+        this._view.value = this._model.color;
+    }
+    onViewRequest(event) {
+        const { componente, valor } = event.detail;
+        this._model.cambiarComponente(componente, valor);
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+window.onload = main;
+
+function dibujarTablero(ctx, lado, colorOscuro) {
+    for (let fila = 0; fila < 8; fila++) {
+        for (let columna = 0; columna < 8; columna++) {
+            ctx.fillStyle = (fila + columna) % 2 === 0 ? 'white' : colorOscuro;
+            ctx.fillRect(columna * lado, fila * lado, lado, lado);
+        }
+    }
+}
+
+</script>
+
+</html>

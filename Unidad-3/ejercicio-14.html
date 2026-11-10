@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+<meta name="generator" content="Geany 2.0" />
+</head>
+
+<body>
+
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        this._colores = { inicio: '#ff0000', fin: '#0000ff' };
+    }
+
+    get colores() {
+        return { ...this._colores };
+    }
+
+    cambiarColor(extremo, hex) {
+        if (!this._colores.hasOwnProperty(extremo)) {
+            throw new Error('Extremo inválido: ' + extremo);
+        }
+        if (typeof hex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(hex)) {
+            throw new Error('El color debe estar en notación HEX (#rrggbb).');
+        }
+        this._colores[extremo] = hex;
+        this.changed();
+    }
+
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() 
+    {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 800;
+        this._canvas.style.border = '1px solid black';
+        this._ctx = this._canvas.getContext('2d');
+
+        this._colores = { inicio: '#ff0000', fin: '#0000ff' };
+
+        const controles = document.createElement('div');
+        this._entradas = {};
+        [['inicio', 'Color inicial'], ['fin', 'Color final']].forEach(([extremo, texto]) => {
+            const etiqueta = document.createElement('label');
+            etiqueta.style.display = 'block';
+            etiqueta.innerText = texto + ' ';
+
+            const entrada = document.createElement('input');
+            entrada.type = 'color';
+            entrada.dataset.extremo = extremo;
+
+            etiqueta.appendChild(entrada);
+            controles.appendChild(etiqueta);
+            this._entradas[extremo] = entrada;
+        });
+
+        this.appendChild(this._canvas);
+        this.appendChild(controles);
+
+        this._onInput = this._onInput.bind(this);
+    }
+    
+    set value(colores) {
+        this._colores = colores;
+        this._entradas.inicio.value = colores.inicio;
+        this._entradas.fin.value = colores.fin;
+
+        this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        dibujarRectanguloConGradiente(this._ctx, this._canvas.width, this._canvas.height, 200, 400, colores.inicio, colores.fin);
+    }
+   
+    get value() {
+        return this._colores;
+    }
+    connectedCallback() {
+        this.addEventListener('input', this._onInput);
+    }
+    disconnectedCallback() {
+        this.removeEventListener('input', this._onInput);
+    }
+
+    _onInput(event) {
+        const entrada = event.target;
+        this.dispatchEvent(new CustomEvent('request', {
+            detail: { extremo: entrada.dataset.extremo, color: entrada.value }
+        }));
+    }
+}
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+        this._view.value = this._model.colores;
+    }
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+    onModelChanged() {
+        this._view.value = this._model.colores;
+    }
+    onViewRequest(event) {
+        const { extremo, color } = event.detail;
+        this._model.cambiarColor(extremo, color);
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+window.onload = main;
+
+function dibujarRectanguloConGradiente(ctx, anchoCanvas, altoCanvas, ancho, alto, colorHex1, colorHex2) {
+    let x = (anchoCanvas - ancho) / 2;
+    let y = (altoCanvas - alto) / 2;
+
+    let gradiente = ctx.createLinearGradient(x, y, x + ancho, y);
+    gradiente.addColorStop(0, colorHex1);
+    gradiente.addColorStop(1, colorHex2);
+
+    ctx.fillStyle = gradiente;
+    ctx.fillRect(x, y, ancho, alto);
+    ctx.strokeRect(x, y, ancho, alto);
+}
+
+</script>
+
+</html>

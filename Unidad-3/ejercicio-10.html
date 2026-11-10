@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+<meta name="generator" content="Geany 2.0" />
+</head>
+
+<body>
+
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() 
+    {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 800;
+        this._canvas.style.border = '1px solid black';
+
+        let ctx = this._canvas.getContext('2d');
+
+        dibujarLineasQuebradas(ctx, this._canvas.width, this._canvas.height);
+
+        this.appendChild(this._canvas);
+    }
+    
+    set value(x) {
+       
+    }
+   
+    get value() {
+        
+    }
+    connectedCallback() {
+       console.log('Canvas agregado...')
+    }
+    disconnectedCallback() {
+        
+    }
+    
+    _onSave() {
+       
+    }
+}
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+    onModelChanged() {
+        
+    }
+    onViewRequest(event) {
+       
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+window.onload = main;
+
+
+function dibujarLineaQuebrada(ctx, p1, p2, p3, cap, join) {
+    ctx.lineWidth = 30;
+    ctx.lineCap = cap;
+    ctx.lineJoin = join;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.stroke();
+
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
+}
+
+function dibujarLineasQuebradas(ctx, anchoCanvas, altoCanvas) {
+    let xIzq = 150;
+    let xMed = 400;
+    let xDer = 650;
+
+    let combinaciones = [
+        { y: 150, cap: 'butt',   join: 'miter' },
+        { y: 400, cap: 'round',  join: 'round' },
+        { y: 650, cap: 'square', join: 'bevel' }
+    ];
+
+    combinaciones.forEach(({ y, cap, join }) => {
+        let p1 = { x: xIzq, y: y + 60 };
+        let p2 = { x: xMed, y: y - 60 };
+        let p3 = { x: xDer, y: y + 60 };
+
+        dibujarLineaQuebrada(ctx, p1, p2, p3, cap, join);
+    });
+}
+
+</script>
+
+</html>

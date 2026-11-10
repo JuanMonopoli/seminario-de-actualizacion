@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+</head>
+
+<body>
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        this._figures = [];
+    }
+
+    get figures() {
+        return this._figures;
+    }
+
+    addFigure(x, y, width, height) {
+        this._figures.push({ x, y, width, height, vx: 0, vy: 0, ax: 0, ay: 0 });
+        this.changed();
+    }
+
+    setAcceleration(index, ax, ay) {
+        this._figures[index].ax = ax;
+        this._figures[index].ay = ay;
+    }
+
+    update(dt) {
+        for (const figure of this._figures) {
+            figure.vx += figure.ax * dt;
+            figure.vy += figure.ay * dt;
+            figure.x += figure.vx * dt;
+            figure.y += figure.vy * dt;
+        }
+        this.changed();
+    }
+
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 600;
+        this._canvas.style.border = '1px solid black';
+        this._ctx = this._canvas.getContext('2d');
+        this._value = [];
+        this.appendChild(this._canvas);
+    }
+
+    set value(figures) {
+        this._value = figures;
+        this._render();
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    _render() {
+        this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        for (const { x, y, width, height } of this._value) {
+            this._ctx.fillRect(x, y, width, height);
+        }
+    }
+}
+customElements.define('x-view', View);
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._frameInterval = 1000 / 60;
+        this._running = false;
+        this._lastTime = null;
+        this._frameId = null;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+        this._tick = this._tick.bind(this);
+    }
+
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+
+    disable() {
+        this.stop();
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+
+    start() {
+        if (this._running) return;
+        this._running = true;
+        this._lastTime = null;
+        this._frameId = requestAnimationFrame(this._tick);
+    }
+
+    stop() {
+        this._running = false;
+        cancelAnimationFrame(this._frameId);
+    }
+
+    _tick(timestamp) {
+        if (!this._running) return;
+        if (this._lastTime === null) {
+            this._lastTime = timestamp;
+        }
+        const elapsed = timestamp - this._lastTime;
+        if (elapsed >= this._frameInterval - 1) {
+            this._lastTime = timestamp;
+            this._model.update(elapsed / 1000);
+        }
+        this._frameId = requestAnimationFrame(this._tick);
+    }
+
+    onModelChanged() {
+        this._view.value = this._model.figures;
+    }
+
+    onViewRequest(event) {
+    }
+}
+
+function main() {
+    const myModel = new Model();
+    const myView = new View();
+    const myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+    myModel.addFigure(50, 275, 50, 50);
+    myModel.setAcceleration(0, 60, 0);
+    myController.start();
+}
+window.onload = main;
+
+</script>
+
+</html>

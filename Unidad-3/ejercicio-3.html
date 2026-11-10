@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>Unidad-3</title>
+<meta name="generator" content="Geany 2.0" />
+</head>
+
+<body>
+
+</body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() 
+    {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 800;
+        this._canvas.style.border = '1px solid black';
+
+        let ctx = this._canvas.getContext('2d');
+
+        
+        dibujarCruzDiagonal(ctx, this._canvas.width, this._canvas.height);
+
+        let puntosPoligono = [
+            {x: 10, y: 10},
+            {x: 80, y: 10},
+            {x: 100, y: 60},
+            {x: 60, y: 100},
+            {x: 20, y: 70}
+        ];
+
+        dibujarPoligonoCentrado(ctx, puntosPoligono, this._canvas.width, this._canvas.height);
+
+        this.appendChild(this._canvas);
+    }
+    
+    set value(x) {
+       
+    }
+   
+    get value() {
+        
+    }
+    connectedCallback() {
+       console.log('Canvas agregado...')
+    }
+    disconnectedCallback() {
+        
+    }
+    
+    _onSave() {
+       
+    }
+}
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+    onModelChanged() {
+        
+    }
+    onViewRequest(event) {
+       
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+window.onload = main;
+
+
+
+function dibujarCruzDiagonal(ctx, ancho, alto) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(ancho, alto);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(ancho, 0);
+    ctx.lineTo(0, alto);
+    ctx.stroke();
+}
+
+function dibujarTriangulo(ctx, p1, p2, p3) {
+
+    ctx.beginPath();
+   
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.closePath();
+    ctx.stroke();
+}
+
+function dibujarPoligonoCentrado(ctx, puntos, anchoCanvas, altoCanvas) {
+    if (!puntos || puntos.length < 3) return; 
+
+    let sumaX = 0;
+    let sumaY = 0;
+    puntos.forEach(p => {
+        sumaX += p.x;
+        sumaY += p.y;
+    });
+    let centroideX = sumaX / puntos.length;
+    let centroideY = sumaY / puntos.length;
+
+    let offsetX = (anchoCanvas / 2) - centroideX;
+    let offsetY = (altoCanvas / 2) - centroideY;
+
+    ctx.beginPath();
+    ctx.moveTo(puntos[0].x + offsetX, puntos[0].y + offsetY);
+    for (let i = 1; i < puntos.length; i++) {
+        ctx.lineTo(puntos[i].x + offsetX, puntos[i].y + offsetY);
+    }
+    ctx.closePath();
+    ctx.stroke();
+}
+
+</script>
+
+</html>

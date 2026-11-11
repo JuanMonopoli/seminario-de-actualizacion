@@ -93,23 +93,15 @@ function main() {
 }
 window.onload = main;
 
-
-
-// Dibuja un cuadrado centrado en el área de dibujo, coloreado con un gradiente
-// cónico cuyo origen es el centro del cuadrado. Los colores de la lista se reparten
-// en partes iguales a lo largo de los 360°.
 function dibujarCuadradoConico(ctx, anchoCanvas, altoCanvas, lado, colores) {
     let cx = anchoCanvas / 2;
     let cy = altoCanvas / 2;
 
-    // el gradiente cónico gira alrededor de (cx, cy); el ángulo inicial -90°
-    // hace que arranque desde arriba (el 0 por defecto es hacia la derecha)
     let gradiente = ctx.createConicGradient(-Math.PI / 2, cx, cy);
 
     colores.forEach((color, i) => {
         gradiente.addColorStop(i / colores.length, color);
     });
-    // se repite el primer color al final para que la vuelta cierre sin corte brusco
     gradiente.addColorStop(1, colores[0]);
 
     ctx.beginPath();

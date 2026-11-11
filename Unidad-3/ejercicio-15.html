@@ -153,16 +153,11 @@ function dibujarPoligonoCentrado(ctx, puntos, anchoCanvas, altoCanvas) {
     ctx.stroke();
 }
 
-// Dibuja un polígono centrado relleno con un gradiente lineal a 45° entre dos
-// colores en notación HEX. Reutiliza dibujarPoligonoCentrado: esa función arma el
-// camino y lo traza, y como stroke() no borra el camino actual, acá se lo puede
-// rellenar a continuación con fill().
 function dibujarPoligonoConGradiente(ctx, puntos, anchoCanvas, altoCanvas, colorHex1, colorHex2) {
     if (!puntos || puntos.length < 3) return;
 
     dibujarPoligonoCentrado(ctx, puntos, anchoCanvas, altoCanvas);
 
-    // posición final de los puntos (mismo desplazamiento que aplicó la función anterior)
     let sumaX = 0;
     let sumaY = 0;
     puntos.forEach(p => {
@@ -175,18 +170,14 @@ function dibujarPoligonoConGradiente(ctx, puntos, anchoCanvas, altoCanvas, color
     let xs = puntos.map(p => p.x + offsetX);
     let ys = puntos.map(p => p.y + offsetY);
 
-    // caja que contiene al polígono y su centro
     let ancho = Math.max(...xs) - Math.min(...xs);
     let alto = Math.max(...ys) - Math.min(...ys);
     let cx = (Math.max(...xs) + Math.min(...xs)) / 2;
     let cy = (Math.max(...ys) + Math.min(...ys)) / 2;
 
-    // dirección de 45°: (cos 45°, sin 45°)
     let dx = Math.SQRT1_2;
     let dy = Math.SQRT1_2;
 
-    // mitad de lo que mide la caja proyectada sobre esa dirección:
-    // el color 1 arranca en una esquina de la caja y el color 2 en la opuesta
     let mitad = (ancho / 2) * dx + (alto / 2) * dy;
 
     let gradiente = ctx.createLinearGradient(
@@ -198,7 +189,7 @@ function dibujarPoligonoConGradiente(ctx, puntos, anchoCanvas, altoCanvas, color
 
     ctx.fillStyle = gradiente;
     ctx.fill();
-    ctx.stroke(); // se vuelve a trazar el contorno para que quede por encima del relleno
+    ctx.stroke();
 }
 
 </script>
